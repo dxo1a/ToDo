@@ -1,0 +1,259 @@
+basePath: /
+definitions:
+  models.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  models.Response:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.TaskDataRequest:
+    properties:
+      description:
+        type: string
+      due_date:
+        type: string
+      title:
+        type: string
+    type: object
+  models.UserDataRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: 80.84.115.215:3000
+info:
+  contact: {}
+  description: API для управления задачами
+  title: To-Do API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: авторизация по username и password
+      parameters:
+      - description: JSON объект с данными пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserDataRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Could not generate token
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Авторизация
+      tags:
+      - auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: тут типа должно быть описание
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logged out
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Выход из учётной записи пользователя
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: регистрация по username и password
+      parameters:
+      - description: JSON объект с данными пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserDataRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: User already exists
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Could not hash password
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Регистрация
+      tags:
+      - auth
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: Получение списка задач
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "404":
+          description: Tasks table not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Список задач
+      tags:
+      - CRUD
+    post:
+      consumes:
+      - application/json
+      description: какое-то описание
+      parameters:
+      - description: JSON объект с данными задачи
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.TaskDataRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Создание задачи
+      tags:
+      - CRUD
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление задачи по ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Task Deleted
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Task not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Удалить задачу
+      tags:
+      - CRUD
+    get:
+      consumes:
+      - application/json
+      description: Получение списка задач по ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "404":
+          description: Task not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: 'Задача #'
+      tags:
+      - CRUD
+    put:
+      consumes:
+      - application/json
+      description: Изменение задачи
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: JSON объект с данными задачи
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.TaskDataRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "404":
+          description: Task not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Изменить задачу
+      tags:
+      - CRUD
+schemes:
+- http
+swagger: "2.0"
