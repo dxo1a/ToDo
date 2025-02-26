@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"ToDo/config"
+	"ToDo/middleware"
 	"ToDo/models"
 	"time"
 
@@ -22,8 +23,15 @@ var sanitizer = bluemonday.UGCPolicy()
 //	@Failure		404	{object} models.ErrorResponse 	"Tasks table not found"
 //	@Router			/tasks [get]
 func GetTasks(c *fiber.Ctx) error {
+	userId, err := middleware.GetUserIdFromToken(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
 	var tasks []models.Task
-	if err := config.DB.Select("id", "title", "description", "created_at").Find(&tasks).Error; err != nil {
+	if err := config.DB.Select("id", "title", "description", "created_at").Where("user_id = ?", userId).Find(&tasks).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error":   "Tasks table not found",
 			"message": err.Error(),
@@ -45,8 +53,16 @@ func GetTasks(c *fiber.Ctx) error {
 //	@Router			/tasks/{id} [get]
 func GetTask(c *fiber.Ctx) error {
 	id := c.Params("id")
+
+	userId, err := middleware.GetUserIdFromToken(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
 	var task models.Task
-	if err := config.DB.First(&task, "id = ?", id).Error; err != nil {
+	if err := config.DB.First(&task, "id = ? AND user_id = ?", id, userId).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error":   "Task not found",
 			"message": err.Error(),
@@ -68,6 +84,13 @@ func GetTask(c *fiber.Ctx) error {
 //	 	@Failure		500 {object} models.ErrorResponse	"Failed to create task"
 //		@Router			/tasks [post]
 func CreateTask(c *fiber.Ctx) error {
+	userId, err := middleware.GetUserIdFromToken(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
 	var input models.TaskDataRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -80,6 +103,7 @@ func CreateTask(c *fiber.Ctx) error {
 		Title:       sanitizer.Sanitize(input.Title),
 		Description: sanitizer.Sanitize(input.Description),
 		CreatedAt:   time.Now(),
+		UserID:      userId,
 	}
 
 	if err := config.DB.Create(&task).Error; err != nil {
@@ -105,7 +129,15 @@ func CreateTask(c *fiber.Ctx) error {
 //	@Router			/tasks/{id} [delete]
 func DeleteTask(c *fiber.Ctx) error {
 	id := c.Params("id")
-	result := config.DB.Delete(&models.Task{}, "id = ?", id)
+
+	userId, err := middleware.GetUserIdFromToken(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	result := config.DB.Delete(&models.Task{}, "id = ? AND user_id = ?", id, userId)
 	if result.RowsAffected == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Task not found"})
 	}
@@ -128,6 +160,21 @@ func DeleteTask(c *fiber.Ctx) error {
 func UpdateTask(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var input models.TaskDataRequest
+
+	userId, err := middleware.GetUserIdFromToken(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	var task models.Task
+	if err := config.DB.First(&task, "id = ? AND user_id = ?", id, userId).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   "Task not found",
+			"message": err.Error(),
+		})
+	}
 
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

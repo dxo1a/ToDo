@@ -8,6 +8,7 @@ type Task struct {
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 	DueDate     time.Time `json:"due_date"`
+	UserID      uint      `json:"user_id"`
 }
 
 type TaskDataRequest struct {

@@ -30,6 +30,7 @@ func main() {
 
 	routes.AuthRoutes(app)
 	routes.TaskRoutes(app)
+	routes.ProfileRoutes(app)
 
 	app.Static("/favicon.ico", "./static/favicon.ico")
 	app.Static("/", "./static/index.html")
