@@ -13,3 +13,9 @@ type UserDataRequest struct {
 	Username string `gorm:"unique" json:"username"`
 	Password string `json:"password"`
 }
+
+type ProfileForSwagger struct {
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Avatar string `json:"avatar_url"`
+}

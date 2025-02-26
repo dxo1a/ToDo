@@ -8,6 +8,17 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// GetProfile godoc
+//
+//	@Summary		Профиль
+//	@Description	Получение профиля пользователя
+//	@Tags			profile
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object} 						models.User
+//	@Failure		401	"Invalid token claims"
+//	@Failure		404	{object} models.ErrorResponse	"User not found"
+//	@Router			/profile [get]
 func GetProfile(c *fiber.Ctx) error {
 	tokenString := c.Cookies("token")
 	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -34,6 +45,20 @@ func GetProfile(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(user)
 }
 
+// UpdateProfile godoc
+//
+//	@Summary		Изменение профиля
+//	@Description	тут описание
+//	@Tags			profile
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body	models.ProfileForSwagger	true	"JSON объект с данными пользователя"
+//	@Success		200	{object} 						models.Task
+//	@Failure		401	"Invalid token claims"
+//	@Failure		400	{object} models.ErrorResponse	"Invalid input"
+//	@Failure		404	{object} models.ErrorResponse	"User not found"
+//	@Failure		500	{object} models.ErrorResponse	"Failed to update profile"
+//	@Router			/profile [put]
 func UpdateProfile(c *fiber.Ctx) error {
 	tokenString := c.Cookies("token")
 	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {

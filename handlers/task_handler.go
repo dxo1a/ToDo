@@ -154,7 +154,7 @@ func DeleteTask(c *fiber.Ctx) error {
 //	@Param			id	path		int	true	"Task ID"
 //	@Param			request	body	models.TaskDataRequest	true	"JSON объект с данными задачи"
 //	@Success		200	{object} 						models.Task
-//	@Failure		404	{object} models.ErrorResponse	"Invalid input
+//	@Failure		404	{object} models.ErrorResponse	"Invalid input"
 //	@Failure		404	{object} models.ErrorResponse	"Task not found"
 //	@Router			/tasks/{id} [put]
 func UpdateTask(c *fiber.Ctx) error {
