@@ -8,6 +8,7 @@ import (
 )
 
 var JWTSecret []byte
+var Port string
 
 func LoadConfig() {
 	err := godotenv.Load()
@@ -16,6 +17,7 @@ func LoadConfig() {
 	}
 
 	JWTSecret = []byte(getEnv("JWT_SECRET", "default"))
+	Port = string(getEnv("PORT", "3000"))
 }
 
 func getEnv(key, fallback string) string {

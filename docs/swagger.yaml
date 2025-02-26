@@ -41,7 +41,7 @@ definitions:
       username:
         type: string
     type: object
-host: 80.84.115.215:3000
+host: localhost:3000
 info:
   contact: {}
   description: API для управления задачами
@@ -170,6 +170,10 @@ paths:
             $ref: '#/definitions/models.Task'
         "400":
           description: Invalid input
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Failed to create task
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Создание задачи

@@ -9,7 +9,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "80.84.115.215:3000",
+    "host": "localhost:3000",
     "basePath": "/",
     "paths": {
         "/login": {
@@ -199,6 +199,12 @@
                     },
                     "400": {
                         "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create task",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }

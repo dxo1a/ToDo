@@ -3,10 +3,11 @@ package handlers
 import (
 	"ToDo/config"
 	"ToDo/models"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 // Register godoc
@@ -29,7 +30,7 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&input); err != nil {
-		return c.Status(400).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Invalid input",
 			"message": err.Error(),
 		})
@@ -37,7 +38,7 @@ func Register(c *fiber.Ctx) error {
 
 	var existingUser models.User
 	if err := config.DB.Where("username =?", input.Username).First(&existingUser).Error; err == nil {
-		return c.Status(409).JSON(fiber.Map{
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
 			"error":   "User already exists",
 			"message": "Пользователь с таким именем уже существует",
 		})
@@ -45,7 +46,7 @@ func Register(c *fiber.Ctx) error {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Could not hash password",
 			"message": err.Error(),
 		})
@@ -63,7 +64,7 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(201).JSON(fiber.Map{"message": "User registered"})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "User registered"})
 }
 
 // Login godoc
@@ -86,7 +87,7 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&input); err != nil {
-		return c.Status(400).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Invalid input",
 			"message": err.Error(),
 		})
@@ -94,14 +95,14 @@ func Login(c *fiber.Ctx) error {
 
 	var user models.User
 	if err := config.DB.Where("username = ?", input.Username).First(&user).Error; err != nil {
-		return c.Status(401).JSON(fiber.Map{
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error":   "Invalid credentials",
 			"message": err.Error(),
 		})
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		return c.Status(401).JSON(fiber.Map{
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error":   "Invalid credentials",
 			"message": err.Error(),
 		})
@@ -114,7 +115,7 @@ func Login(c *fiber.Ctx) error {
 
 	tokenString, err := token.SignedString(config.JWTSecret)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Could not generate token",
 			"message": err.Error(),
 		})
@@ -128,7 +129,7 @@ func Login(c *fiber.Ctx) error {
 		SameSite: "Strict",
 	})
 
-	return c.Status(200).JSON(fiber.Map{"message": "Login successful"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Login successful"})
 }
 
 // Logout godoc
@@ -149,5 +150,5 @@ func Logout(c *fiber.Ctx) error {
 		Secure:   false,
 		SameSite: "Strict",
 	})
-	return c.Status(200).JSON(fiber.Map{"message": "Logged out"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Logged out"})
 }
